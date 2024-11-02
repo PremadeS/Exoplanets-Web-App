@@ -17,6 +17,7 @@ class SignUpScene extends Phaser.Scene {
     this.background = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'background');
     this.background.setOrigin(0, 0);
 
+    this.cameras.main.fadeIn(250, 0, 0, 0);
     this.add.text(this.scale.width / 2, 200, 'Sign Up Page', {fontSize : '70px', color : '#00ff00', fontStyle : 'bold'}).setOrigin(0.5);
   }
 }
@@ -98,7 +99,10 @@ class LoginScene extends Phaser.Scene {
       createAccount.setColor('#00ff00');
     });
     createAccount.setInteractive().on('pointerdown', () => {
-      this.scene.start('SignUpScene');
+      this.cameras.main.fadeOut(250, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('SignUpScene');
+      });
     });
   }
 
@@ -128,9 +132,12 @@ class LoginScene extends Phaser.Scene {
     const username = this.usernameText.text;
     const password = this.realPassword;
 
-    if (username === 'test' && password === 'test')
-      this.scene.start('MainScene');
-    else if (!this.addedIncorrect) {
+    if (username === 'test' && password === 'test') {
+      this.cameras.main.fadeOut(250, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('MainScene');
+      });
+    } else if (!this.addedIncorrect) {
       this.addedIncorrect = true;
       this.add.text(this.scale.width / 2, 675, 'Incorrect username or password.', {fontSize : '18px', color : '#ff0000'}).setOrigin(0.5);
     }
@@ -620,7 +627,7 @@ const config = {
     mode : Phaser.Scale.FIT,
     autoCentre : Phaser.Scale.CENTER_BOTH
   },
-  scene : [ SignUpScene, LoginScene, MainScene, PlanetDetailScene ]
+  scene : [ LoginScene, MainScene, PlanetDetailScene, SignUpScene ]
 };
 
 let currentSpeedX = 0;
