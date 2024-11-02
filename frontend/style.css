@@ -1,0 +1,7 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrollbars */
+  height: 100%; /* Ensure full height */
+  background-color: #000; /* Match the canvas background color */
+}
