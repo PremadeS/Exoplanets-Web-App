@@ -1,5 +1,26 @@
 import Phaser from 'phaser';
 
+class SignUpScene extends Phaser.Scene {
+  constructor() {
+    super({key : 'SignUpScene'});
+  }
+
+  preload() {
+    this.load.image('background', 'assets/bg/bgtile.png')
+  }
+  update() {
+    this.background.tilePositionX += 2;
+  }
+
+  create() {
+
+    this.background = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'background');
+    this.background.setOrigin(0, 0);
+
+    this.add.text(this.scale.width / 2, 200, 'Sign Up Page', {fontSize : '70px', color : '#00ff00', fontStyle : 'bold'}).setOrigin(0.5);
+  }
+}
+
 class LoginScene extends Phaser.Scene {
   constructor() {
     super({key : 'LoginScene'});
@@ -18,19 +39,21 @@ class LoginScene extends Phaser.Scene {
     this.background = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'background');
     this.background.setOrigin(0, 0);
 
-    this.add.text(this.scale.width / 2, 200, 'Welcome to the World Of ExoPlanets!', {fontSize : '32px', color : '#00ff00'}).setOrigin(0.5);
-    this.add.text(this.scale.width / 2, 275, 'Sign in to continue', {fontSize : '24px', color : '#ffffff'}).setOrigin(0.5);
+    this.add.text(this.scale.width / 2, 200, 'ExoPlanets Web App', {fontSize : '70px', color : '#00ff00', fontStyle : 'bold'}).setOrigin(0.5);
 
-    const usernameTxt = this.add.text(this.scale.width / 2 - 100, 410, 'Username', {fontSize : '18px', color : '#ffffff'}).setOrigin(0.5);
-    this.usernameBox = this.add.rectangle(this.scale.width / 2, 450, 300, 40).setStrokeStyle(2, 0xffffff);
-    this.usernameText = this.add.text(this.scale.width / 2 - 140, 440, '', {fontSize : '20px', color : '#ffffff'});
+    const starting = 350;
+    this.add.text(this.scale.width / 2, starting, 'Sign In', {fontSize : '40px', color : '#ffffff'}).setOrigin(0.5);
 
-    const passwordTxt = this.add.text(this.scale.width / 2 - 100, 530, 'Password', {fontSize : '18px', color : '#ffffff'}).setOrigin(0.5);
-    this.passwordBox = this.add.rectangle(this.scale.width / 2, 570, 300, 40).setStrokeStyle(2, 0xffffff);
-    this.passwordText = this.add.text(this.scale.width / 2 - 140, 560, '', {fontSize : '20px', color : '#ffffff'});
+    const usernameTxt = this.add.text(this.scale.width / 2 - 100, starting + 110, 'Username', {fontSize : '22px', color : '#ffffff', fontStyle : 'italic'}).setOrigin(0.5);
+    this.usernameBox = this.add.rectangle(this.scale.width / 2, starting + 150, 310, 40).setStrokeStyle(2, 0xffffff);
+    this.usernameText = this.add.text(this.scale.width / 2 - 140, starting + 140, '', {fontSize : '20px', color : '#ffffff'});
 
-    const loginButton = this.add.text(this.scale.width / 2, 670, 'Login', {
-                                  fontSize : '24px',
+    const passwordTxt = this.add.text(this.scale.width / 2 - 100, starting + 230, 'Password', {fontSize : '22px', color : '#ffffff', fontStyle : 'italic'}).setOrigin(0.5);
+    this.passwordBox = this.add.rectangle(this.scale.width / 2, starting + 270, 310, 40).setStrokeStyle(2, 0xffffff);
+    this.passwordText = this.add.text(this.scale.width / 2 - 140, starting + 260, '', {fontSize : '20px', color : '#ffffff'});
+
+    const loginButton = this.add.text(this.scale.width / 2, starting + 385, 'Login', {
+                                  fontSize : '28px',
                                   color : '#00ff00',
                                   backgroundColor : '#000',
                                   padding : {x : 10, y : 5}
@@ -66,6 +89,17 @@ class LoginScene extends Phaser.Scene {
       usernameTxt.setColor('#ffffff');
       this.currentInput = 'password';
     });
+
+    const createAccount = this.add.text(this.scale.width / 2, starting + 480, 'Create an Account', {fontSize : '26px', color : '#00ff00'}).setOrigin(0.5);
+    createAccount.setInteractive().on('pointerover', () => {
+      createAccount.setColor('#ff0000');
+    });
+    createAccount.setInteractive().on('pointerout', () => {
+      createAccount.setColor('#00ff00');
+    });
+    createAccount.setInteractive().on('pointerdown', () => {
+      this.scene.start('SignUpScene');
+    });
   }
 
   handleKey(event) {
@@ -98,7 +132,7 @@ class LoginScene extends Phaser.Scene {
       this.scene.start('MainScene');
     else if (!this.addedIncorrect) {
       this.addedIncorrect = true;
-      this.add.text(this.scale.width / 2, 760, 'Incorrect username or password.', {fontSize : '18px', color : '#ff0000'}).setOrigin(0.5);
+      this.add.text(this.scale.width / 2, 675, 'Incorrect username or password.', {fontSize : '18px', color : '#ff0000'}).setOrigin(0.5);
     }
   }
 }
@@ -586,7 +620,7 @@ const config = {
     mode : Phaser.Scale.FIT,
     autoCentre : Phaser.Scale.CENTER_BOTH
   },
-  scene : [ LoginScene, MainScene, PlanetDetailScene ]
+  scene : [ SignUpScene, LoginScene, MainScene, PlanetDetailScene ]
 };
 
 let currentSpeedX = 0;
