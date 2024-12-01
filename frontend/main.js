@@ -1,12 +1,19 @@
 import Phaser from 'phaser';
 
-import LoginScene from './scenes/LognInScene';
+import LoginScene from './scenes/LogInScene';
 import PlanetDetailScene from './scenes/PlanetDetailScene';
 import SignUpScene from './scenes/SignUpScene';
 
 class MainScene extends Phaser.Scene {
   constructor() {
     super({key : 'MainScene'});
+  }
+
+  init(data) {
+    this.username = data.name;
+    this.level = data.level;
+    this.spaceship_level = data.spaceship_level;
+    this.score = data.score;
   }
 
   preload() {
@@ -21,11 +28,11 @@ class MainScene extends Phaser.Scene {
 
   create() {
 
-    this.score = this.add.text(this.scale.width / 2 - 100, 20, `Score = 0`, {
-                           fontSize : '40px',
-                           fill : '#fff'
-                         })
-                     .setDepth(15);
+    this.add.text(this.scale.width / 2 - 100, 20, `Score = ${this.score}`, {
+              fontSize : '40px',
+              fill : '#fff'
+            })
+        .setDepth(15);
 
     this.cameras.main.fadeIn(250, 0, 0, 0);
     background = this.add.tileSprite(0, 0, config.width, config.height, 'background');
@@ -37,24 +44,46 @@ class MainScene extends Phaser.Scene {
     spaceship.setScale(0.5);
     spaceship.setTint(0x999999);
 
-    this.menuButton = this.add.text(25, 80, 'Menu', {
-                                fontSize : '50px',
-                                fill : '#00ff00',
-                                fontFamily : 'Courier',
-                                backgroundColor : '#000',
-                                padding : {x : 10, y : 5},
-                                fixedWidth : 140
-                              })
-                          .setOrigin(0, 1)
-                          .setInteractive()
-                          .setDepth(10);
+    this.statsButton = this.add.text(25, 80, 'Stats', {
+                                 fontSize : '30px',
+                                 fill : '#00ff00',
+                                 fontFamily : 'Courier',
+                                 backgroundColor : '#000',
+                                 padding : {x : 10, y : 5},
+                                 fixedWidth : 110
+                               })
+                           .setOrigin(0, 1)
+                           .setInteractive()
+                           .setDepth(10);
 
-    this.menuButton.on('pointerover', () => {
-      this.menuButton.setStyle({fill : '#ff0000', backgroundColor : '#111'});
+    this.statsButton.on('pointerover', () => {
+      this.statsButton.setStyle({fill : '#ff0000', backgroundColor : '#111'});
     });
-    this.menuButton.on('pointerout', () => {
-      this.menuButton.setStyle({fill : '#00ff00', backgroundColor : '#000'});
+    this.statsButton.on('pointerout', () => {
+      this.statsButton.setStyle({fill : '#00ff00', backgroundColor : '#000'});
     });
+
+    this.statsButton.on('pointerdown', () => {
+      this.toggleBox();
+    });
+
+    this.boxVisible = false;
+    this.box = this.add.graphics({fillStyle : {color : 0x000000}});
+    this.box.fillRect(100, 100, 400, 200);
+
+    this.textContainer = this.add.container(100, 100);
+
+    var usernameText = this.add.text(10, 10, 'Username: ' + this.username, {fontSize : '24px', fill : '#fff'});
+    var levelText = this.add.text(10, 40, 'Level: ' + this.level, {fontSize : '24px', fill : '#fff'});
+    var scoreText = this.add.text(10, 70, 'Score: ' + this.score, {fontSize : '24px', fill : '#fff'});
+    var spaceshipLevelText = this.add.text(10, 100, 'Spaceship Level: ' + this.spaceship_level, {fontSize : '24px', fill : '#fff'});
+
+    this.textContainer.add([ usernameText, levelText, scoreText, spaceshipLevelText ]);
+
+    this.box.setAlpha(0);
+    this.box.setDepth(9);
+    this.textContainer.setAlpha(0);
+    this.textContainer.setDepth(9);
 
     cursors = this.input.keyboard.createCursorKeys();
     this.input.keyboard.addKeys('W,A,S,D');
@@ -234,6 +263,29 @@ class MainScene extends Phaser.Scene {
       }
     });
   }
+  toggleBox() {
+    if (!this.boxVisible) {
+      this.tweens.add({
+        targets : [ this.box, this.textContainer, this.closeButton ],
+        alpha : 1,
+        ease : 'Cubic.easeIn',
+        duration : 500
+      });
+      this.boxVisible = true;
+    } else {
+      this.closeBox();
+    }
+  }
+
+  closeBox() {
+    this.tweens.add({
+      targets : [ this.box, this.textContainer, this.closeButton ],
+      alpha : 0,
+      ease : 'Cubic.easeOut',
+      duration : 500
+    });
+    this.boxVisible = false;
+  }
 }
 
 const config = {
@@ -284,10 +336,10 @@ async function fetchPlanets(scene) {
 
     planetData = await response.json();
     totalPlanetTypes = planetData.length;
-    console.log(planetData);
 
     planetData.forEach(planet => {
-      scene.load.image(`planet${planet.id}`, `assets/planets/planet${planet.id}.png`);
+      const url = planet.imageUrl;
+      scene.load.image(`planet${planet.id}`, url);
     });
 
   } catch (error) {

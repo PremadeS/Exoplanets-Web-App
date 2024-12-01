@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 
-class LoginScene extends Phaser.Scene {
+class AdminLoginScene extends Phaser.Scene {
   constructor() {
-    super({key : 'LoginScene'});
+    super({key : 'AdminLoginScene'});
     this.realPassword = '';
   }
 
@@ -22,7 +22,7 @@ class LoginScene extends Phaser.Scene {
     this.background = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'background');
     this.background.setOrigin(0, 0);
 
-    this.add.text(this.scale.width / 2, 200, 'ExoPlanets Web App', {fontSize : '70px', color : '#00ff00', fontStyle : 'bold'}).setOrigin(0.5);
+    this.add.text(this.scale.width / 2, 200, 'Admin Page', {fontSize : '70px', color : '#00ff00', fontStyle : 'bold'}).setOrigin(0.5);
 
     const starting = 350;
     this.add.text(this.scale.width / 2, starting, 'Sign In', {fontSize : '40px', color : '#ffffff'}).setOrigin(0.5);
@@ -72,20 +72,6 @@ class LoginScene extends Phaser.Scene {
       usernameTxt.setColor('#ffffff');
       this.currentInput = 'password';
     });
-
-    const createAccount = this.add.text(this.scale.width / 2, starting + 480, 'Create an Account', {fontSize : '26px', color : '#00ff00'}).setOrigin(0.5);
-    createAccount.setInteractive().on('pointerover', () => {
-      createAccount.setColor('#ff0000');
-    });
-    createAccount.setInteractive().on('pointerout', () => {
-      createAccount.setColor('#00ff00');
-    });
-    createAccount.setInteractive().on('pointerdown', () => {
-      this.cameras.main.fadeOut(250, 0, 0, 0);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('SignUpScene');
-      });
-    });
   }
 
   handleKey(event) {
@@ -114,16 +100,33 @@ class LoginScene extends Phaser.Scene {
     const username = this.usernameText.text;
     const password = this.realPassword;
 
-    if (username === 'test' && password === 'test') {
-      this.cameras.main.fadeOut(250, 0, 0, 0);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('MainScene');
-      });
-    } else if (!this.addedIncorrect) {
-      this.addedIncorrect = true;
-      this.add.text(this.scale.width / 2, 675, 'Incorrect username or password.', {fontSize : '18px', color : '#ff0000'}).setOrigin(0.5);
-    }
+    fetch('http://localhost:3000/admin', {
+      method : 'POST',
+      headers : {
+        'Content-Type' : 'application/json',
+      },
+      body : JSON.stringify({username, password}),
+    })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            this.cameras.main.fadeOut(250, 0, 0, 0);
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+              this.scene.start('AdminScene', {
+                name : username
+              });
+            });
+          } else {
+            if (!this.addedIncorrect) {
+              this.addedIncorrect = true;
+              this.add.text(this.scale.width / 2, 675, 'Incorrect username or password.', {fontSize : '18px', color : '#ff0000'}).setOrigin(0.5);
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
   }
 }
 
-export default LoginScene;
+export default AdminLoginScene;
