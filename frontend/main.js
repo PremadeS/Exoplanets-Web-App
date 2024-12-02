@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import LoginScene from './scenes/LogInScene';
 import PlanetDetailScene from './scenes/PlanetDetailScene';
 import SignUpScene from './scenes/SignUpScene';
+import UpgradesScene from './scenes/UpgradesScene';
 
 class MainScene extends Phaser.Scene {
   constructor() {
@@ -65,6 +66,37 @@ class MainScene extends Phaser.Scene {
 
     this.statsButton.on('pointerdown', () => {
       this.toggleBox();
+    });
+
+    this.upgrades = this.add.text(this.scale.width - 160, 80, 'Upgrade', {
+                              fontSize : '30px',
+                              fill : '#00ff00',
+                              fontFamily : 'Courier',
+                              backgroundColor : '#000',
+                              padding : {x : 10, y : 5},
+                              fixedWidth : 145
+                            })
+                        .setOrigin(0, 1)
+                        .setInteractive()
+                        .setDepth(10);
+
+    this.upgrades.on('pointerover', () => {
+      this.upgrades.setStyle({fill : '#ff0000', backgroundColor : '#111'});
+    });
+    this.upgrades.on('pointerout', () => {
+      this.upgrades.setStyle({fill : '#00ff00', backgroundColor : '#000'});
+    });
+
+    this.upgrades.on('pointerdown', () => {
+      this.cameras.main.fadeOut(250, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('UpgradesScene', {
+          username : this.username,
+          level : this.level,
+          spaceship_level : this.spaceship_level,
+          score : this.score,
+        });
+      });
     });
 
     this.boxVisible = false;
@@ -303,7 +335,7 @@ const config = {
     mode : Phaser.Scale.FIT,
     autoCentre : Phaser.Scale.CENTER_BOTH
   },
-  scene : [ LoginScene, MainScene, PlanetDetailScene, SignUpScene ]
+  scene : [ MainScene, PlanetDetailScene, LoginScene, UpgradesScene, SignUpScene ]
 };
 
 let currentSpeedX = 0;
